@@ -1,2 +1,2 @@
-# aldi-backend-repo
-ㅎㅎ..
+# ALDI-Backend
+Backend Repository for 'ALDI' project
