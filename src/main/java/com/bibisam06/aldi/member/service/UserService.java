@@ -24,7 +24,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     // 로직 - 회원가입
-    public User createUser(AuthRequest request) {
+    public JwtToken createUser(AuthRequest request) {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
         User newUser = User.builder()
@@ -33,8 +33,12 @@ public class UserService {
                 .userRole(UserRole.USER)
                 .build();
 
-        JwtToken jwtToken = jwtProvider.generateToken(newUser.getUserId(), newUser.getUserRole());
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+        return jwtProvider.generateToken(newUser.getUserId(), newUser.getUserRole());
+    }
+
+    public User findByUserEmail(String email) {
+        return userRepository.findByUserEmail(email);
     }
 
 }

@@ -30,5 +30,11 @@ public class JwtTest {
 
     }
 
+    @Test
+    @DisplayName("로그인 로직 테스트")
+    void testLogIn(){
+        
+    }
+
 
 }

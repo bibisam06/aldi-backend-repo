@@ -71,7 +71,7 @@ public class JwtProvider {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            return e.getClaims(); // 만료된 경우에도 claims 추출
+            return e.getClaims();
         } catch (Exception e) {
             throw new BaseException(GlobalErrorCode.INVALID_TOKEN);
         }

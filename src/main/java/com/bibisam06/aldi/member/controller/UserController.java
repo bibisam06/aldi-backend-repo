@@ -1,5 +1,7 @@
 package com.bibisam06.aldi.member.controller;
 
+import com.bibisam06.aldi.auth.AuthService;
+import com.bibisam06.aldi.common.jwt.dto.JwtToken;
 import com.bibisam06.aldi.common.response.SuccessResponse;
 import com.bibisam06.aldi.member.dto.AuthRequest;
 import com.bibisam06.aldi.member.entity.User;
@@ -16,19 +18,29 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
 
     @Operation(summary = "사용자 로그인 API 입니다 - 이메일 로그인")
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    @PostMapping("/login")
+    public SuccessResponse<Object> logIn(@RequestBody AuthRequest authRequest) {
+        JwtToken jwtTokens = authService.login(authRequest);
+        return new SuccessResponse<>(200, "로그인에 성공했습니다", jwtTokens);
     }
 
 
     @Operation(summary = "사용자 회원가입 API 입니다 - 이메일 회원가입")
     @PostMapping("/signup")
-    public SuccessResponse<Object> signup(@RequestBody AuthRequest authRequest) {
-        userService.createUser(authRequest);
-        return new SuccessResponse<>(200, "회원가입에 성공했습니다", null);
+    public SuccessResponse<Object> signUp(@RequestBody AuthRequest authRequest) {
+        JwtToken jwtTokens = userService.createUser(authRequest);
+        return new SuccessResponse<>(200, "회원가입에 성공했습니다", jwtTokens);
+    }
+
+    @Operation(summary = "사용자 로그아웃 API 입니다. - 로그아웃")
+    @PostMapping
+    public SuccessResponse<Object> signOut(@RequestBody AuthRequest authRequest) {
+
+
+        return new SuccessResponse<>(200, null, null);
     }
 }
