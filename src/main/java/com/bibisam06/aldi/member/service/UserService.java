@@ -1,17 +1,14 @@
 package com.bibisam06.aldi.member.service;
 
-import com.bibisam06.aldi.common.jwt.JwtProperties;
 import com.bibisam06.aldi.common.jwt.JwtProvider;
 import com.bibisam06.aldi.common.jwt.dto.JwtToken;
 import com.bibisam06.aldi.member.dto.AuthRequest;
 import com.bibisam06.aldi.member.entity.User;
 import com.bibisam06.aldi.member.entity.UserRole;
 import com.bibisam06.aldi.member.repository.UserRepository;
-import com.fasterxml.jackson.core.Base64Variant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +24,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
-    private final UserService userService;
     private final RedisTemplate<String, String> redisTemplate;
 
     // 로직 - 회원가입
@@ -59,7 +55,7 @@ public class UserService {
 
 
     public JwtToken login(AuthRequest authRequest) {
-        User foundUser = userService.findByUserEmail(authRequest.getUserEmail());
+        User foundUser = findByUserEmail(authRequest.getUserEmail());
 
         JwtToken jwtTokens = jwtProvider.generateToken(foundUser.getUserId(), foundUser.getUserRole());
 
