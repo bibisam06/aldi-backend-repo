@@ -27,6 +27,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     // 로직 - 회원가입
     public JwtToken createUser(AuthRequest request) {
@@ -46,9 +48,6 @@ public class UserService {
         return userRepository.findByUserEmail(email);
     }
 
-    private final UserService userService;
-    private final RedisTemplate<String, String> redisTemplate;
-    private final JwtProvider jwtProvider;
 
     public void logout(String accessToken, String refreshToken) {
         long expiration = jwtProvider.getExpiration(accessToken);
