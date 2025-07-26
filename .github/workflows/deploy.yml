@@ -17,11 +17,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Overwrite env.properties before build
-        run: |
-          mkdir -p src/main/resources/properties
-          echo "${{ secrets.ENV_VARS }}" > src/main/resources/properties/env.properties
-
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -53,14 +48,11 @@ jobs:
           script: |
             cd /home/ubuntu/
 
-            sudo touch .env.properties
-            echo "${{ secrets.ENV_VARS }}" | sudo tee .env.properties > /dev/null
-
-            sudo touch docker-compose.yml
+            echo "${{ secrets.ENV_VARS }}" | sudo tee .env > /dev/null
             echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null
 
             sudo chmod 666 /var/run/docker.sock
-            sudo docker ps -qa | xargs -r sudo docker rm -f
+            sudo docker ps -aq --filter "ancestor=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}" | xargs -r sudo docker rm -f
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
-            docker-compose -f docker-compose.yml --env-file ./.env.properties up -d
+            docker-compose -f docker-compose.yml --env-file .env up -d
             docker image prune -f
