@@ -1,10 +1,8 @@
 package com.bibisam06.aldi.member.controller;
 
-import com.bibisam06.aldi.auth.AuthService;
 import com.bibisam06.aldi.common.jwt.dto.JwtToken;
 import com.bibisam06.aldi.common.response.SuccessResponse;
 import com.bibisam06.aldi.member.dto.AuthRequest;
-import com.bibisam06.aldi.member.entity.User;
 import com.bibisam06.aldi.member.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,13 +16,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final AuthService authService;
 
 
     @Operation(summary = "사용자 로그인 API 입니다 - 이메일 로그인")
     @PostMapping("/login")
     public SuccessResponse<Object> logIn(@RequestBody AuthRequest authRequest) {
-        JwtToken jwtTokens = authService.login(authRequest);
+        JwtToken jwtTokens = userService.login(authRequest);
         return new SuccessResponse<>(200, "로그인에 성공했습니다", jwtTokens);
     }
 

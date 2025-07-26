@@ -10,9 +10,14 @@ import com.bibisam06.aldi.member.repository.UserRepository;
 import com.fasterxml.jackson.core.Base64Variant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
+
+import static com.bibisam06.aldi.common.constant.StaticValue.BLACKLIST_PREFIX;
 
 @Slf4j
 @Service
@@ -39,6 +44,33 @@ public class UserService {
 
     public User findByUserEmail(String email) {
         return userRepository.findByUserEmail(email);
+    }
+
+    private final UserService userService;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final JwtProvider jwtProvider;
+
+    public void logout(String accessToken, String refreshToken) {
+        long expiration = jwtProvider.getExpiration(accessToken);
+        System.out.println("expiration: " + expiration);
+        redisTemplate.opsForValue().set(BLACKLIST_PREFIX+ accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(BLACKLIST_PREFIX + refreshToken, "logout", expiration, TimeUnit.MILLISECONDS);
+        redisTemplate.delete("refresh:" + refreshToken);
+    }
+
+
+    public JwtToken login(AuthRequest authRequest) {
+        User foundUser = userService.findByUserEmail(authRequest.getUserEmail());
+
+        JwtToken jwtTokens = jwtProvider.generateToken(foundUser.getUserId(), foundUser.getUserRole());
+
+        long expiration = jwtProvider.getExpiration(jwtTokens.getAccessToken());
+        long expiration2 = jwtProvider.getExpiration(jwtTokens.getRefreshToken());
+
+        redisTemplate.opsForValue().set("access:" + jwtTokens.getAccessToken(), "login", expiration, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set("refresh:" + jwtTokens.getRefreshToken(), "login", expiration2, TimeUnit.MILLISECONDS);
+
+        return jwtTokens;
     }
 
 }
