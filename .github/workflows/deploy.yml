@@ -3,8 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - develop
       - main
+      - develop
 
 permissions:
   contents: read
@@ -48,11 +48,11 @@ jobs:
           script: |
             cd /home/ubuntu/
 
-            echo "${{ secrets.ENV_VARS }}" | sudo tee .env > /dev/null
+            echo "${{ secrets.ENV_VARS }}" | sudo tee application.properties > /dev/null
             echo "${{ secrets.DOCKER_COMPOSE }}" | sudo tee docker-compose.yml > /dev/null
 
             sudo chmod 666 /var/run/docker.sock
             sudo docker ps -aq --filter "ancestor=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}" | xargs -r sudo docker rm -f
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
-            docker-compose -f docker-compose.yml --env-file .env up -d
+            docker-compose -f docker-compose.yml up -d
             docker image prune -f
