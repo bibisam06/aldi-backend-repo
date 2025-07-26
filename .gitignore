@@ -41,9 +41,10 @@ out/
 # 보안파일
 .env
 application.properties
-env.properties
+local.properties
 # Docker
 docker-compose.yml
 
 
 
+/src/main/resources/properties/local.properties
