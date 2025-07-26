@@ -40,7 +40,8 @@ out/
 
 # 보안파일
 .env
-*.properties
+application.properties
+env.properties
 # Docker
 docker-compose.yml
 
