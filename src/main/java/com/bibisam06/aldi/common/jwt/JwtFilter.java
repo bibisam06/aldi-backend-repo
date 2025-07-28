@@ -1,6 +1,7 @@
 package com.bibisam06.aldi.common.jwt;
 
 import com.bibisam06.aldi.common.jwt.dto.AccessTokenDTO;
+import com.bibisam06.aldi.common.redis.BlacklistTokenService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,39 +21,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final JwtProperties jwtProperties;
     private final JwtProvider jwtProvider;
+    private final BlacklistTokenService tokenBlacklistService;
+    private final JwtProperties jwtProperties;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
 
         String token = resolveToken(request);
 
-        try {
-            if (StringUtils.hasText(token) && jwtProvider.getAuthentication(token) != null) {
-
-                // 사용자 정보 추출
-                AccessTokenDTO accessTokenDTO = jwtProvider.getAuthentication(token);
-
-                // 권한 부여
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                accessTokenDTO.getUserId(),
-                                null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + accessTokenDTO.getUserRole()))
-                        );
-
-                // SecurityContext에 등록
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (token != null && jwtProvider.validateToken(token)) {
+            if (tokenBlacklistService.isTokenBlacklisted(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token is blacklisted.");
+                return;
             }
-        } catch (JwtException e) {
-            log.warn("JWT 처리 중 오류 발생: {}", e.getMessage());
-            SecurityContextHolder.clearContext();
+//            AccessTokenDTO auth = jwtProvider.getAuthentication(token);
+//            SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
-        // 다음 필터로 전달
-        filterChain.doFilter(request, response);
+        chain.doFilter(request, response);
     }
+
 
     /**
      * 요청 헤더에서 JWT 토큰 추출

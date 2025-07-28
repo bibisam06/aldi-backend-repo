@@ -1,6 +1,7 @@
 package com.bibisam06.aldi.auth;
 
 import com.bibisam06.aldi.common.jwt.JwtProperties;
+import com.bibisam06.aldi.common.jwt.dto.JwtToken;
 import com.bibisam06.aldi.member.dto.AuthRequest;
 import com.bibisam06.aldi.member.entity.User;
 import com.bibisam06.aldi.member.service.UserService;
@@ -25,7 +26,7 @@ public class JwtTest {
         authRequest.setPassword("password");
         authRequest.setUserEmail("email1");
 
-        User newUser = userService.createUser(authRequest);
+        JwtToken newUser = userService.createUser(authRequest);
         Assertions.assertThat(newUser).isNotNull();
 
     }
@@ -33,7 +34,7 @@ public class JwtTest {
     @Test
     @DisplayName("로그인 로직 테스트")
     void testLogIn(){
-        
+
     }
 
 

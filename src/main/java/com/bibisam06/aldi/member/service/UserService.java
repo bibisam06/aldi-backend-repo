@@ -41,4 +41,8 @@ public class UserService {
         return userRepository.findByUserEmail(email);
     }
 
+    public void logOut(String refreshToken) {
+
+    }
+
 }

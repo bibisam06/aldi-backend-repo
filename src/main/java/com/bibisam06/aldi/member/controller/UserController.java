@@ -39,8 +39,7 @@ public class UserController {
     @Operation(summary = "사용자 로그아웃 API 입니다. - 로그아웃")
     @PostMapping
     public SuccessResponse<Object> signOut(@RequestBody AuthRequest authRequest) {
-
-
+        //userService.logout
         return new SuccessResponse<>(200, null, null);
     }
 }
