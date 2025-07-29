@@ -10,6 +10,10 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -22,6 +26,7 @@ public class JwtProvider {
 
     private final JwtProperties jwtProperties;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserDetailsService userDetailsService;
 
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
@@ -57,7 +62,33 @@ public class JwtProvider {
                 .build();
     }
 
-    public AccessTokenDTO getAuthentication(String accessToken) {
+    /*
+    토큰에서 인증정보를 가져오는 메서드입니다.
+     */
+    public Authentication getAuthentication(String token) {
+        String username = getUsernameFromToken(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        return new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        );
+    }
+
+    /*
+    Jwt 토큰에서 유저 아이디, 유저 권한(UserRole)을 가져오는 메서드입니다.
+     */
+    public String getUsernameFromToken(String token) {
+        return Jwts.parser()
+                .(getSecretKey())
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
+
+    public AccessTokenDTO getAccessTokenDTO(String accessToken) {
         Claims claims = parseClaims(accessToken);
         return new AccessTokenDTO(
                 claims.getSubject(),

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -37,8 +38,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 response.getWriter().write("Token is blacklisted.");
                 return;
             }
-//            AccessTokenDTO auth = jwtProvider.getAuthentication(token);
-//            SecurityContextHolder.getContext().setAuthentication(auth);
+            Authentication auth = jwtProvider.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(auth);
         }
 
         chain.doFilter(request, response);
@@ -49,8 +50,8 @@ public class JwtFilter extends OncePerRequestFilter {
      * 요청 헤더에서 JWT 토큰 추출
      */
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(jwtProperties.getHeader()); // 예: Authorization
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(jwtProperties.getPrefix())) { // 예: Bearer
+        String bearerToken = request.getHeader(jwtProperties.getHeader());
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(jwtProperties.getPrefix())) {
             return bearerToken.substring(jwtProperties.getPrefix().length()).trim(); // "Bearer " 이후 토큰 반환
         }
         return null;
