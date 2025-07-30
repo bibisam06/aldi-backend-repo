@@ -11,6 +11,8 @@ import com.bibisam06.aldi.member.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +39,7 @@ public class UserService {
         if (foundUser != null) {
             throw new BaseException(UserErrorCode.EMAIL_ALREADY_EXISTS);
         }
+
         User newUser = User.builder()
                 .userEmail(request.getUserEmail())
                 .userPassword(encodedPassword)
@@ -86,6 +89,8 @@ public class UserService {
                 TimeUnit.MILLISECONDS
         );
 
+        Authentication authentication = jwtProvider.getAuthentication(jwtTokens.getAccessToken());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtTokens;
     }
 

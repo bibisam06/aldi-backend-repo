@@ -1,5 +1,7 @@
 package com.bibisam06.aldi.common.jwt;
 
+import com.bibisam06.aldi.CustomUserDetails;
+import com.bibisam06.aldi.auth.CustomUserDetailService;
 import com.bibisam06.aldi.common.jwt.dto.AccessTokenDTO;
 import com.bibisam06.aldi.common.jwt.dto.JwtToken;
 import com.bibisam06.aldi.common.jwt.exception.GlobalErrorCode;
@@ -27,6 +29,7 @@ public class JwtProvider {
     private final JwtProperties jwtProperties;
     private final RedisTemplate<String, Object> redisTemplate;
     private final UserDetailsService userDetailsService;
+    private final CustomUserDetailService customUserDetailService;
 
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
@@ -66,9 +69,10 @@ public class JwtProvider {
     토큰에서 인증정보를 가져오는 메서드입니다.
      */
     public Authentication getAuthentication(String token) {
-        String username = getUsernameFromToken(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        Integer userId = getUserIdFromToken(token);
+        CustomUserDetails userDetails = customUserDetailService.loadUserByUserId(userId);
 
+        System.out.println("userDetails: " + userDetails);
         return new UsernamePasswordAuthenticationToken(
                 userDetails,
                 null,
@@ -79,12 +83,15 @@ public class JwtProvider {
     /*
     Jwt 토큰에서 유저 아이디, 유저 권한(UserRole)을 가져오는 메서드입니다.
      */
-    public String getUsernameFromToken(String token) {
-        return Jwts.parser()
-                .(getSecretKey())
+    public Integer getUserIdFromToken(String token) {
+        String subject = Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+
+        return Integer.parseInt(subject);
     }
 
 
