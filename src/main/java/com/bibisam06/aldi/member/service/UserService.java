@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static com.bibisam06.aldi.common.constant.StaticValue.BLACKLIST_PREFIX;
+import static com.bibisam06.aldi.common.constant.StaticValue.BLACKLIST_TOKEN_PREFIX;
 
 @Slf4j
 @Service
@@ -58,13 +58,14 @@ public class UserService {
     public void logout(String accessToken, String refreshToken) {
         long expiration = jwtProvider.getExpiration(accessToken);
         System.out.println("expiration: " + expiration);
-        redisTemplate.opsForValue().set(BLACKLIST_PREFIX+ accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
-        redisTemplate.opsForValue().set(BLACKLIST_PREFIX + refreshToken, "logout", expiration, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(BLACKLIST_TOKEN_PREFIX+ accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(BLACKLIST_TOKEN_PREFIX + refreshToken, "logout", expiration, TimeUnit.MILLISECONDS);
         redisTemplate.delete("refresh:" + refreshToken);
     }
 
     public JwtToken login(AuthRequest authRequest) {
-        User foundUser = findByUserEmail(authRequest.getUserEmail());
+        User foundUser = Optional.ofNullable(findByUserEmail(authRequest.getUserEmail()))
+                .orElseThrow(() -> new BaseException(UserErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(authRequest.getPassword(), foundUser.getUserPassword())) {
             throw new BaseException(UserErrorCode.INVALID_PASSWORD);
@@ -76,22 +77,28 @@ public class UserService {
         long refreshTokenExp = jwtProvider.getExpiration(jwtTokens.getRefreshToken());
 
         redisTemplate.opsForValue().set(
-                "auth:access:" + foundUser.getUserId(),
+                getAccessTokenKey(foundUser.getUserId()),
                 jwtTokens.getAccessToken(),
                 accessTokenExp,
                 TimeUnit.MILLISECONDS
         );
 
         redisTemplate.opsForValue().set(
-                "auth:refresh:" + foundUser.getUserId(),
+                getRefreshTokenKey(foundUser.getUserId()),
                 jwtTokens.getRefreshToken(),
                 refreshTokenExp,
                 TimeUnit.MILLISECONDS
         );
 
-        Authentication authentication = jwtProvider.getAuthentication(jwtTokens.getAccessToken());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtTokens;
+    }
+
+    private String getAccessTokenKey(Integer userId) {
+        return "auth:access:" + userId;
+    }
+
+    private String getRefreshTokenKey(Integer userId) {
+        return "auth:refresh:" + userId;
     }
 
 

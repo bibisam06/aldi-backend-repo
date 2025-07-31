@@ -1,4 +1,4 @@
-package com.bibisam06.aldi.common.redis;
+package com.bibisam06.aldi.common.jwt.dto;
 
 import org.springframework.data.annotation.Id;
 import lombok.Getter;
