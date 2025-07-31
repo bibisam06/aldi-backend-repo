@@ -13,8 +13,12 @@ public class RedisBlacklistTokenDAO extends BaseRedisRepository<BlacklistToken> 
 
     @Autowired
     public void RedisBlacklistTokenDao(RedisTemplate<String, BlacklistToken> redisTemplate) {
-        this.prefix = REFRESH_TOKEN_PREFIX; // 리프레시 토큰의 접두사 설정
+        this.prefix = REFRESH_TOKEN_PREFIX;
         this.redisTemplate = redisTemplate;
+    }
+
+    public boolean isBlacklisted(String token) {
+        return redisTemplate.hasKey(prefix + token);
     }
 
 }

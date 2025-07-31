@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @SpringBootTest
 class RedisTemplateTests {
     @Autowired
@@ -22,6 +24,6 @@ class RedisTemplateTests {
         String key = "name";
         valueOperations.set(key, "giraffe");
         String value = valueOperations.get(key);
-        Assertions.assertEquals(value, "giraffe");
+        assertEquals("giraffe", value);
     }
 }

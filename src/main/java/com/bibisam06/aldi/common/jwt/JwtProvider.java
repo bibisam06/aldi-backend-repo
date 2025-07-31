@@ -1,7 +1,7 @@
 package com.bibisam06.aldi.common.jwt;
 
 import com.bibisam06.aldi.CustomUserDetails;
-import com.bibisam06.aldi.auth.CustomUserDetailService;
+import com.bibisam06.aldi.auth.service.CustomUserDetailService;
 import com.bibisam06.aldi.common.jwt.dto.AccessTokenDTO;
 import com.bibisam06.aldi.common.jwt.dto.JwtToken;
 import com.bibisam06.aldi.common.jwt.exception.GlobalErrorCode;
@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
