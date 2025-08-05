@@ -6,18 +6,14 @@ import com.bibisam06.aldi.common.jwt.dto.BlacklistToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import static com.bibisam06.aldi.common.constant.StaticValue.BLACKLIST_TOKEN_PREFIX;
+import static com.bibisam06.aldi.common.constant.StaticValue.ACCESS_TOKEN_PREFIX;;
+
 @RedisRepository
-public class RedisBlacklistTokenDAO extends BaseRedisRepository<BlacklistToken> {
+public class RedisAccessTokenDAO extends BaseRedisRepository<BlacklistToken> {
 
     @Autowired
     public void RedisBlacklistTokenDao(RedisTemplate<String, BlacklistToken> redisTemplate) {
-        this.prefix = BLACKLIST_TOKEN_PREFIX;
+        this.prefix = ACCESS_TOKEN_PREFIX;
         this.redisTemplate = redisTemplate;
     }
-
-    public boolean isBlacklisted(String token) {
-        return redisTemplate.hasKey(prefix + token);
-    }
-
 }

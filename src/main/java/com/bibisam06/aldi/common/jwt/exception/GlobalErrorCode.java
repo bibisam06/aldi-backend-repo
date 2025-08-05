@@ -31,9 +31,15 @@ public enum GlobalErrorCode implements BaseErrorCode {
 
     PUBKEY_GENERATION_FAILED(400, "PUBLIC_KEY_400", "공개키를 생성하는데 실패했습니다."),
 
+    // Exception - Redis
     REDIS_ID_NOT_FOUND(404, "REDIS_404", "REDIS ID가 존재하지 않습니다."),
     REDIS_SAVE_FAILED(500, "REDIS_500", "REDIS에서 값을 저장하는 과정에서 오류가 발생했습니다."),
     REDIS_DELETE_FAILED(500,"REDIS_500_2","REDIS에서 값을 삭제하는 과정에서 오류가 발생했습니다.");
+
+
+
+
+
 
     private final HttpStatus httpStatus;
     private final String code;

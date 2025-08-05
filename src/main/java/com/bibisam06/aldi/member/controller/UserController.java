@@ -7,6 +7,7 @@ import com.bibisam06.aldi.member.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,15 +32,22 @@ public class UserController {
     @Operation(summary = "사용자 회원가입 API 입니다 - 이메일 회원가입")
     @PostMapping("/signup")
     public SuccessResponse<Object> signUp(@RequestBody AuthRequest authRequest) {
-        JwtToken jwtTokens = userService.createUser(authRequest);
-        return new SuccessResponse<>(200, "회원가입에 성공했습니다", jwtTokens);
+        //JwtToken jwtTokens = userService.createUser(authRequest);
+        return new SuccessResponse<>(200, "회원가입에 성공했습니다", null /* jwtTokens */);
     }
 
     @Operation(summary = "사용자 로그아웃 API 입니다. - 로그아웃")
-    @PostMapping
+    @GetMapping("/logout")
     public SuccessResponse<Object> signOut(HttpServletRequest request) {
         System.out.println("request Header: " + request.getHeader("Authorization"));
 
         return new SuccessResponse<>(200, null, null);
+    }
+
+    @Operation(summary = "사용자 탈퇴 API 입니다 - 탈퇴")
+    @DeleteMapping("/signout")
+    public SuccessResponse<Object> signout(HttpServletRequest request) {
+
+        return new  SuccessResponse<>(200, null, null);
     }
 }

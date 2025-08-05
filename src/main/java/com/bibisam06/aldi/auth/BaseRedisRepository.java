@@ -22,7 +22,7 @@ public abstract class BaseRedisRepository<T> {
     // 만료 시간 포함한 save 함수
     public void saveWithExpiration(String keyName , T t, long expirationTime){
         try{
-            redisTemplate.opsForValue().set(keyName,t,expirationTime, TimeUnit.MILLISECONDS);
+            redisTemplate.opsForValue().set(keyName, t, expirationTime, TimeUnit.MILLISECONDS);
         } catch (Exception e){
             throw new BaseException(GlobalErrorCode.REDIS_SAVE_FAILED);
         }
